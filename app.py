@@ -3,7 +3,8 @@ import sqlite3
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = "aamart-secret-key-change-this"
+import os
+app.secret_key = os.environ.get("SECRET_KEY")
 
 DB = "aamart.db"
 
