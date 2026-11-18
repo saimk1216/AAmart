@@ -1,0 +1,73 @@
+{% extends "admin_base.html" %}
+{% block admincontent %}
+<h1>Coupon Management</h1>
+
+<div class="formbox wide">
+    <h2>Create Coupon</h2>
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>Coupon Code
+            <input name="code" placeholder="WELCOME10" maxlength="40" required>
+        </label>
+
+        <div class="two">
+            <label>Discount Type
+                <select name="discount_type" required>
+                    <option value="percent">Percentage (%)</option>
+                    <option value="fixed">Fixed Amount (₹)</option>
+                </select>
+            </label>
+            <label>Discount Value
+                <input name="discount_value" type="number" min="0.01" step="0.01" required>
+            </label>
+        </div>
+
+        <label>Minimum Order Value (₹)
+            <input name="min_order" type="number" min="0" step="0.01" value="0" required>
+        </label>
+
+        <label>Expiry Date and Time (optional)
+            <input name="expires_at" type="datetime-local">
+        </label>
+
+        <label>Maximum Usage Limit (optional)
+            <input name="max_uses" type="number" min="1" placeholder="Unlimited if empty">
+        </label>
+
+        <button class="btn full" type="submit">Create Coupon</button>
+    </form>
+</div>
+
+<h2>Existing Coupons</h2>
+{% if coupons %}
+    {% for coupon in coupons %}
+    <div class="card" style="margin:12px 0;padding:15px">
+        <h3>{{ coupon.code }}</h3>
+        <p>Discount:
+            {% if coupon.discount_type == 'percent' %}
+                {{ coupon.discount_value }}%
+            {% else %}
+                ₹{{ coupon.discount_value }}
+            {% endif %}
+        </p>
+        <p>Minimum order: ₹{{ coupon.min_order }}</p>
+        <p>Expiry: {{ coupon.expires_at.strftime('%d %b %Y, %I:%M %p') if coupon.expires_at else 'No expiry' }}</p>
+        <p>Usage: {{ coupon.used_count }} / {{ coupon.max_uses if coupon.max_uses is not none else 'Unlimited' }}</p>
+        <p>Status: {{ 'Active' if coupon.active else 'Inactive' }}</p>
+
+        <form method="post" action="{{ url_for('toggle_coupon', coupon_id=coupon.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn" type="submit">{{ 'Deactivate' if coupon.active else 'Activate' }}</button>
+        </form>
+
+        <form method="post" action="{{ url_for('delete_coupon', coupon_id=coupon.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn" type="submit" onclick="return confirm('Delete this coupon?')">Delete</button>
+        </form>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>No coupons created yet.</p>
+{% endif %}
+{% endblock %}

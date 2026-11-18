@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>My Orders</h1>
+
+<style>
+.tracking-history {
+    margin: 18px 0;
+    border-left: 3px solid #2874f0;
+    padding-left: 18px;
+}
+.history-item {
+    margin: 0 0 18px;
+    position: relative;
+}
+.history-item:before {
+    content: "";
+    position: absolute;
+    left: -25px;
+    top: 4px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #16a34a;
+}
+.history-item small {
+    display: block;
+    color: #777;
+    margin-top: 4px;
+}
+.cancelled-label {
+    color: #dc2626;
+    font-weight: bold;
+}
+</style>
+
+{% for o in orders %}
+<div class="orderbox">
+
+    <b>{{ o.order_number }}</b>
+    <small>{{ o.created_at.strftime('%d %b %Y') }}</small>
+
+    <p>Status: <b>{{ o.status }}</b></p>
+    <p>₹{{ '%.2f'|format(o.total) }}</p>
+
+    {% if o.status == "Cancelled" %}
+        <p class="cancelled-label">Order Cancelled</p>
+    {% endif %}
+
+    <h3>Order Tracking History</h3>
+
+    <div class="tracking-history">
+        {% for event in o.status_updates %}
+        <div class="history-item">
+            <b>{{ event.status }}</b>
+            <small>{{ event.created_at|ist }}</small>
+        </div>
+        {% else %}
+        <p>Tracking history is not available for this older order.</p>
+        {% endfor %}
+    </div>
+
+    <details>
+        <summary>Order details</summary>
+        {% for i in o.items %}
+        <p>{{ i.product_name }} × {{ i.quantity }} — ₹{{ '%.2f'|format(i.price*i.quantity) }}</p>
+        {% endfor %}
+        <p>{{ o.customer_name }} · {{ o.phone }} · {{ o.address }}, {{ o.city }}, {{ o.state }} - {{ o.pincode }}</p>
+    </details>
+
+    {% if o.status in ["Placed", "Processing"] %}
+    <form method="POST"
+          action="{{ url_for('cancel_order', order_id=o.id) }}"
+          onsubmit="return confirm('Kya aap ye order cancel karna chahte hain?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit">Cancel Order</button>
+    </form>
+    {% endif %}
+
+</div>
+{% else %}
+<p>No orders yet.</p>
+{% endfor %}
+
+{% endblock %}

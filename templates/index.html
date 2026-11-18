@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block content %}
+<section class="hero"><div><span class="pill">WELCOME TO {{ store.store_name if store else 'AAmart' }}</span><h1>Everything you need,<br>in one place.</h1><p>Discover products, great prices and simple shopping.</p><a class="btn" href="#products">Shop now</a></div><div class="hero-art">🛍️</div></section>
+<div class="sectionhead"><h2>Shop by category</h2></div><div class="chips"><a class="chip" href="{{ url_for('index') }}">All</a>{% for c in categories %}<a class="chip" href="{{ url_for('index',category=c) }}">{{ c }}</a>{% endfor %}</div>
+<div class="sectionhead" id="products"><h2>{% if q %}Search results{% else %}Featured products{% endif %}</h2><span>{{ products|length }} products</span></div>
+<div class="grid">{% for p in products %}<article class="card"><a href="{{ url_for('product_detail',product_id=p.id) }}" class="productimg">{% if p.image %}<img src="{{ url_for('static',filename='uploads/'+p.image) }}">{% else %}<span>📦</span>{% endif %}</a><div class="cardbody"><small>{{ p.category }}</small><h3><a href="{{ url_for('product_detail',product_id=p.id) }}">{{ p.name }}</a></h3>{% if p.is_sale_active %}<span class="pill">⚡ FLASH SALE</span>{% endif %}
+<p class="price">₹{{ '%.2f'|format(p.current_price) }}
+{% if p.is_sale_active %}<del>₹{{ '%.2f'|format(p.price) }}</del>{% else %}<del>₹{{ '%.2f'|format(p.mrp) }}</del>{% endif %}
+</p><small>{{ p.stock }} in stock</small><form method="post" action="{{ url_for('add_to_cart',product_id=p.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn full" {% if p.stock<1 %}disabled{% endif %}>Add to cart</button></form></div></article>{% else %}<p>No products found.</p>{% endfor %}</div>{% endblock %}

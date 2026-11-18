@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="detail">
+    <div class="detailimg">
+        {% if product.image %}
+        <img src="{{ url_for('static',filename='uploads/'+product.image) }}">
+        {% else %}📦{% endif %}
+    </div>
+    <div>
+        <span class="pill">{{ product.category }}</span>
+        <h1>{{ product.name }}</h1>
+        {% if product.is_sale_active %}<span class="pill">⚡ FLASH SALE</span>{% endif %}
+        <p class="price big">₹{{ '%.2f'|format(product.current_price) }}
+            {% if product.is_sale_active %}<del>₹{{ '%.2f'|format(product.price) }}</del>{% else %}<del>₹{{ '%.2f'|format(product.mrp) }}</del>{% endif %}
+        </p>
+        <p>{{ product.description }}</p>
+        <p>{{ product.stock }} available</p>
+        <form method="post" action="{{ url_for('add_to_cart',product_id=product.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label>Quantity
+                <input type="number" name="quantity" min="1" max="{{ product.stock }}" value="1">
+            </label>
+            <button class="btn">Add to cart</button>
+        </form>
+
+        <form method="post" action="{{ url_for('add_to_wishlist', product_id=product.id) }}" style="margin-top:12px">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn" type="submit">❤️ Add to Wishlist</button>
+        </form>
+    </div>
+</div>
+
+<section id="reviews" style="margin-top:35px;padding:20px;border:1px solid #ddd;border-radius:12px">
+    <h2>Customer Reviews ⭐</h2>
+    <h3>{{ average_rating }} / 5 ⭐</h3>
+    <p>{{ reviews|length }} customer review(s)</p>
+
+    {% if current_user.is_authenticated and can_review %}
+    <form method="post" action="{{ url_for('submit_review', product_id=product.id) }}" style="margin:20px 0">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <h3>{% if my_review %}Edit your review{% else %}Write a review{% endif %}</h3>
+        <label>Rating</label>
+        <select name="rating" required>
+            <option value="">Select stars</option>
+            {% for n in range(5, 0, -1) %}
+            <option value="{{ n }}" {% if my_review and my_review.rating == n %}selected{% endif %}>{{ n }} Star{% if n != 1 %}s{% endif %}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <textarea name="comment" maxlength="1000" rows="4" placeholder="Write your experience...">{{ my_review.comment if my_review else '' }}</textarea>
+        <br><br>
+        <button class="btn" type="submit">Submit Review</button>
+    </form>
+    {% elif current_user.is_authenticated %}
+    <p>Review dene ke liye is product ka order Delivered hona zaroori hai.</p>
+    {% else %}
+    <p><a href="{{ url_for('login') }}">Login</a> karke review eligibility check karein. Review sirf Delivered order ke baad allowed hai.</p>
+    {% endif %}
+
+    <hr>
+    {% for review in reviews %}
+    <article style="padding:15px 0;border-bottom:1px solid #ddd">
+        <strong>{{ review.user.username }}</strong>
+        <p style="color:#d18b00;font-size:20px">{{ '★' * review.rating }}{{ '☆' * (5-review.rating) }}</p>
+        <p>{{ review.comment }}</p>
+        <small>{{ review.created_at|ist }}</small>
+    </article>
+    {% else %}
+    <p>Abhi tak koi review nahi hai. Delivered order ke baad pehla review likhein!</p>
+    {% endfor %}
+</section>
+{% endblock %}

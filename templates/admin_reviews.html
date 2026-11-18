@@ -1,0 +1,28 @@
+{% extends "admin_base.html" %}
+{% block admincontent %}
+<h1>Customer Reviews</h1>
+<p>Yahan se customer reviews hide ya delete kar sakte hain.</p>
+
+{% for review in reviews %}
+<div style="padding:15px;margin:12px 0;border:1px solid #ddd;border-radius:10px">
+    <h3>{{ review.product.name }}</h3>
+    <p><b>Customer:</b> {{ review.user.username }}</p>
+    <p style="color:#d18b00;font-size:20px">{{ '★' * review.rating }}{{ '☆' * (5-review.rating) }}</p>
+    <p>{{ review.comment }}</p>
+    <small>{{ review.created_at|ist }}</small>
+    <p><b>Status:</b> {{ "Visible" if review.visible else "Hidden" }}</p>
+
+    <form method="post" action="{{ url_for('toggle_review_visibility', review_id=review.id) }}" style="display:inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn" type="submit">{{ "Hide" if review.visible else "Show" }}</button>
+    </form>
+
+    <form method="post" action="{{ url_for('delete_review', review_id=review.id) }}" style="display:inline" onsubmit="return confirm('Delete this review?')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn" type="submit">Delete</button>
+    </form>
+</div>
+{% else %}
+<p>No reviews yet.</p>
+{% endfor %}
+{% endblock %}

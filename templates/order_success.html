@@ -1,0 +1,1 @@
+{% extends "base.html" %}{% block content %}<div class="empty"><div class="successicon">✓</div><h1>Order placed!</h1><p>Your order number is <b>{{ order.order_number }}</b></p><p>Payment: Cash on Delivery</p><p>Status: {{ order.status }}</p><a class="btn" href="{{ url_for('my_orders') }}">View my orders</a></div>{% endblock %}

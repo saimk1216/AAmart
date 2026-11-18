@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>❤️ My Wishlist</h1>
+
+{% if items %}
+<div class="grid">
+    {% for item in items %}
+    <div class="card">
+        <a href="{{ url_for('product_detail', product_id=item.product.id) }}">
+            {% if item.product.image %}
+            <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+            {% else %}
+            <div class="detailimg">📦</div>
+            {% endif %}
+            <h3>{{ item.product.name }}</h3>
+        </a>
+
+        <p class="price">₹{{ '%.2f'|format(item.product.price) }}</p>
+        <p>{{ item.product.stock }} available</p>
+
+        <form method="post" action="{{ url_for('move_wishlist_to_cart', item_id=item.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn" type="submit">Add to Cart</button>
+        </form>
+
+        <form method="post" action="{{ url_for('remove_from_wishlist', item_id=item.id) }}" style="margin-top:8px">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn" type="submit">Remove</button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>Your Wishlist is empty.</p>
+<a class="btn" href="{{ url_for('index') }}">Explore Products</a>
+{% endif %}
+
+{% endblock %}

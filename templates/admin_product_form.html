@@ -1,0 +1,69 @@
+{% extends "admin_base.html" %}
+{% block admincontent %}
+<div class="formbox wide">
+<h1>{{ 'Edit' if product else 'Add' }} product</h1>
+
+<form method="post" enctype="multipart/form-data">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+<label>Product name
+<input name="name" required value="{{ product.name if product else '' }}">
+</label>
+
+<label>Description
+<textarea name="description">{{ product.description if product else '' }}</textarea>
+</label>
+
+<label>Category
+<input name="category" value="{{ product.category if product else 'General' }}">
+</label>
+
+<div class="two">
+<label>Selling price (₹)
+<input type="number" step="0.01" min="0.01" name="price" required value="{{ product.price if product else '' }}">
+</label>
+
+<label>MRP (₹)
+<input type="number" step="0.01" min="0.01" name="mrp" required value="{{ product.mrp if product else '' }}">
+</label>
+</div>
+
+<hr>
+<h2>⚡ Flash Sale Settings</h2>
+<p>Sale price normal selling price se kam rakhein.</p>
+
+<label>Flash Sale Price (₹)
+<input type="number" step="0.01" min="0.01" name="sale_price"
+value="{{ product.sale_price if product and product.sale_price else '' }}">
+</label>
+
+<label>Sale Start (IST)
+<input type="datetime-local" name="sale_start"
+value="{{ product.sale_start.strftime('%Y-%m-%dT%H:%M') if product and product.sale_start else '' }}">
+</label>
+
+<label>Sale End (IST)
+<input type="datetime-local" name="sale_end"
+value="{{ product.sale_end.strftime('%Y-%m-%dT%H:%M') if product and product.sale_end else '' }}">
+</label>
+
+<p>Start aur end time blank chhodne par sale turant active rahegi aur manually band karne tak chalegi.</p>
+<hr>
+
+<label>Stock
+<input type="number" min="0" name="stock" required value="{{ product.stock if product else 0 }}">
+</label>
+
+<label>Product image
+<input type="file" name="image" accept="image/png,image/jpeg,image/webp">
+</label>
+
+<label class="check">
+<input type="checkbox" name="active" {% if not product or product.active %}checked{% endif %}>
+Visible in store
+</label>
+
+<button class="btn full">Save product</button>
+</form>
+</div>
+{% endblock %}

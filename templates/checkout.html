@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="formbox wide">
+    <h1>Checkout</h1>
+
+    <h3>Subtotal: ₹{{ '%.2f'|format(subtotal) }}</h3>
+
+    <div class="card" style="margin:15px 0;padding:15px">
+        <h3>🎟️ Apply Coupon</h3>
+        {% if coupon_code %}
+            <p>Applied coupon: <strong>{{ coupon_code }}</strong></p>
+            <p>Discount: <strong>−₹{{ '%.2f'|format(discount) }}</strong></p>
+            <form method="post" action="{{ url_for('remove_coupon') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn" type="submit">Remove Coupon</button>
+            </form>
+        {% else %}
+            <form method="post" action="{{ url_for('apply_coupon') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label>Coupon Code
+                    <input name="coupon_code" placeholder="Enter coupon code" required>
+                </label>
+                <button class="btn" type="submit">Apply Coupon</button>
+            </form>
+        {% endif %}
+    </div>
+
+    <h2>Final Total: ₹{{ '%.2f'|format(total) }}</h2>
+
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>Full name<input name="customer_name" required></label>
+        <label>Mobile number<input name="phone" required pattern="[0-9+]{10,13}"></label>
+        <label>Address<textarea name="address" required></textarea></label>
+        <div class="two">
+            <label>City<input name="city" required></label>
+            <label>State<input name="state" required></label>
+        </div>
+        <label>PIN code<input name="pincode" required pattern="[0-9]{6}" maxlength="6"></label>
+        <label>Payment method<select disabled><option>Cash on Delivery (currently enabled)</option></select></label>
+        <button class="btn full">Place COD order</button>
+    </form>
+</div>
+{% endblock %}

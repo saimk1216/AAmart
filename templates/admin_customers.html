@@ -1,0 +1,1 @@
+{% extends "admin_base.html" %}{% block admincontent %}<h1>Customers</h1><div class="tablewrap"><table><tr><th>Username</th><th>Email</th><th>Joined</th></tr>{% for c in customers %}<tr><td>{{ c.username }}</td><td>{{ c.email }}</td><td>{{ c.created_at.strftime('%d %b %Y') }}</td></tr>{% endfor %}</table></div>{% endblock %}
